@@ -1,9 +1,8 @@
 package br.com.tech.adote.api.controller;
 
 import br.com.tech.adote.api.assembler.AnimalAssembler;
-import br.com.tech.adote.api.model.input.AnimalInput;
 import br.com.tech.adote.api.model.AnimalModel;
-import br.com.tech.adote.domain.enums.Status;
+import br.com.tech.adote.api.model.input.AnimalInput;
 import br.com.tech.adote.domain.model.Animal;
 import br.com.tech.adote.domain.service.AnimalService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +40,9 @@ public class AnimalController {
     @Operation(summary = "Busca por ID", description = "Metodo que consulta o animal pelo ID")
     @GetMapping("/{id}")
     public ResponseEntity<AnimalModel> getAnimalById(@PathVariable Long id) {
-        return ResponseEntity.ok(animalService.getAnimalById(id));
+        return animalService.getAnimalById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Busca por Nome", description = "Metodo que consulta o animal pelo Nome")

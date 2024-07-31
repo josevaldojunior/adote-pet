@@ -8,13 +8,13 @@ import br.com.tech.adote.domain.model.Animal;
 import br.com.tech.adote.domain.model.Categoria;
 import br.com.tech.adote.domain.repository.AnimalRepository;
 import br.com.tech.adote.domain.util.AnimalUtil;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -38,11 +38,9 @@ public class AnimalService {
                 .toList();
     }
 
-    public AnimalModel getAnimalById(Long id) {
-        Animal animal = animalRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Animal não encontrado"));
-
-        return getIdadeCategoriaAnimal(animal);
+    public Optional<AnimalModel> getAnimalById(Long id) {
+        return animalRepository.findById(id)
+                .map(this::getIdadeCategoriaAnimal);
     }
 
     public List<AnimalModel> getAnimalsByName(String name) {
