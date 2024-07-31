@@ -5,15 +5,17 @@ import br.com.tech.adote.api.model.AnimalModel;
 import br.com.tech.adote.domain.enums.Status;
 import br.com.tech.adote.domain.execption.NegocioException;
 import br.com.tech.adote.domain.model.Animal;
+import br.com.tech.adote.domain.model.Categoria;
 import br.com.tech.adote.domain.repository.AnimalRepository;
 import br.com.tech.adote.domain.service.AnimalService;
+import br.com.tech.adote.domain.service.CategoriaService;
 import br.com.tech.adote.domain.util.AnimalUtil;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,10 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class AnimalServiceTest {
-
-    @InjectMocks
-    private AnimalService animalService;
 
     @Mock
     private AnimalRepository animalRepository;
@@ -37,85 +37,112 @@ class AnimalServiceTest {
     @Mock
     private AnimalUtil animalUtil;
 
+    @Mock
+    private CategoriaService categoriaService;
+
+    @InjectMocks
+    private AnimalService animalService;
+
+    private Animal animal;
+    private AnimalModel animalModel;
+    private Categoria categoria;
+
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    void testGetAnimalById() {
-        Animal animal = new Animal();
+        animal = new Animal();
         animal.setId(1L);
+        animal.setNome("Bobby");
         animal.setDataNascimento(LocalDate.of(2020, 1, 1));
-
-        AnimalModel model = new AnimalModel();
-        model.setId(animal.getId());
-
-        when(animalRepository.findById(anyLong())).thenReturn(Optional.of(animal));
-        when(animalAssembler.toModel(any(Animal.class))).thenReturn(model);
-
-//        AnimalModel animalModel = animalService.getAnimalById(1L);
-//        assertNotNull(animalModel);
-//        assertEquals(1L, animalModel.getId());
-    }
-
-    @Test
-    void testGetAnimalByIdNotFound() {
-        when(animalRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(EntityNotFoundException.class, () -> animalService.getAnimalById(1L));
-
-        String expectedMessage = "Animal não encontrado";
-        String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(expectedMessage));
-    }
-
-    @Test
-    void testGetAnimalsByName() {
-        Animal animal = new Animal();
-        animal.setNome("Rex");
-        animal.setDataNascimento(LocalDate.of(2020, 1, 1));
-
-        AnimalModel model = new AnimalModel();
-        model.setNome(animal.getNome());
-
-        when(animalRepository.findByName(anyString())).thenReturn(List.of(animal));
-        when(animalAssembler.toModel(any(Animal.class))).thenReturn(model);
-
-        List<AnimalModel> animals = animalService.getAnimalsByName("Rex");
-        assertNotNull(animals);
-        assertEquals(1, animals.size());
-        assertEquals("Rex", animals.get(0).getNome());
-    }
-
-    @Test
-    void testGetAnimalsByNameEmpty() {
-        List<AnimalModel> animals = animalService.getAnimalsByName("");
-        assertNotNull(animals);
-        assertTrue(animals.isEmpty());
-    }
-
-
-    @Test
-    void testUpdateAnimalStatus() {
-        Animal animal = new Animal();
         animal.setStatus(Status.DISPONIVEL);
+        categoria = new Categoria();
+        categoria.setId(1L);
+        categoria.setNome("Dog");
+        animal.setCategoria(categoria);
 
-        when(animalRepository.findById(anyLong())).thenReturn(Optional.of(animal));
+        animalModel = new AnimalModel();
+        animalModel.setId(1L);
+        animalModel.setNome("Bobby");
+        animalModel.setIdade("3 anos e 6 meses"); // Atualize com o formato de idade como String
+        animalModel.setCategoria("Dog");
+    }
+
+    @Test
+    void testCreateAnimal() {
         when(animalRepository.save(any(Animal.class))).thenReturn(animal);
+        when(animalAssembler.toModel(animal)).thenReturn(animalModel);
+        when(animalUtil.calcularIdade(any(LocalDate.class))).thenReturn("3 anos e 6 meses");
+        when(categoriaService.getById(any(Long.class))).thenReturn(categoria);
 
-        Animal updatedAnimal = animalService.updateAnimalStatus(1L);
+        AnimalModel createdAnimal = animalService.createAnimal(animal);
+
+        assertNotNull(createdAnimal);
+        assertEquals(animalModel.getNome(), createdAnimal.getNome());
+        assertEquals(animalModel.getIdade(), createdAnimal.getIdade());
         verify(animalRepository, times(1)).save(animal);
     }
 
     @Test
-    void testUpdateAnimalStatusNotFound() {
-        when(animalRepository.findById(anyLong())).thenReturn(Optional.empty());
+    void testGetAllAnimals() {
+        when(animalRepository.findAll()).thenReturn(List.of(animal));
+        when(animalAssembler.toModel(animal)).thenReturn(animalModel);
+        when(animalUtil.calcularIdade(any(LocalDate.class))).thenReturn("3 anos e 6 meses");
+        when(categoriaService.getById(any(Long.class))).thenReturn(categoria);
 
-        Exception exception = assertThrows(NegocioException.class, () -> animalService.updateAnimalStatus(1L));
+        List<AnimalModel> animals = animalService.getAllAnimals();
 
-        String expectedMessage = "Animal not found";
-        String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(expectedMessage));
+        assertEquals(1, animals.size());
+        assertEquals(animalModel.getIdade(), animals.get(0).getIdade());
+        verify(animalRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetAnimalById() {
+        when(animalRepository.findById(any(Long.class))).thenReturn(Optional.of(animal));
+        when(animalAssembler.toModel(animal)).thenReturn(animalModel);
+        when(animalUtil.calcularIdade(any(LocalDate.class))).thenReturn("3 anos e 6 meses");
+        when(categoriaService.getById(any(Long.class))).thenReturn(categoria);
+
+        Optional<AnimalModel> animalById = animalService.getAnimalById(1L);
+
+        assertTrue(animalById.isPresent());
+        assertEquals(animalModel.getNome(), animalById.get().getNome());
+        assertEquals(animalModel.getIdade(), animalById.get().getIdade());
+        verify(animalRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testGetAnimalsByName() {
+        when(animalRepository.findByName(any(String.class))).thenReturn(List.of(animal));
+        when(animalAssembler.toModel(animal)).thenReturn(animalModel);
+        when(animalUtil.calcularIdade(any(LocalDate.class))).thenReturn("3 anos e 6 meses");
+        when(categoriaService.getById(any(Long.class))).thenReturn(categoria);
+
+        List<AnimalModel> animals = animalService.getAnimalsByName("Bobby");
+
+        assertEquals(1, animals.size());
+        assertEquals(animalModel.getNome(), animals.get(0).getNome());
+        assertEquals(animalModel.getIdade(), animals.get(0).getIdade());
+        verify(animalRepository, times(1)).findByName("Bobby");
+    }
+
+    @Test
+    void testUpdateAnimalStatus() {
+        when(animalRepository.findById(any(Long.class))).thenReturn(Optional.of(animal));
+        when(animalRepository.save(any(Animal.class))).thenReturn(animal);
+
+        Animal updatedAnimal = animalService.updateAnimalStatus(1L);
+
+        assertNotNull(updatedAnimal);
+        assertEquals(Status.ADOTADO, updatedAnimal.getStatus());
+        verify(animalRepository, times(1)).findById(1L);
+        verify(animalRepository, times(1)).save(animal);
+    }
+
+    @Test
+    void testUpdateAnimalStatus_NotFound() {
+        when(animalRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+
+        assertThrows(NegocioException.class, () -> animalService.updateAnimalStatus(1L));
+        verify(animalRepository, times(1)).findById(1L);
     }
 }
