@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @AllArgsConstructor
 @Component
 public class AnimalAssembler {
@@ -21,12 +19,6 @@ public class AnimalAssembler {
 
     public AnimalModel toModel(final Animal animal) {
         return modelMapper.map(animal, AnimalModel.class);
-    }
-
-    public List<AnimalModel> toCollectionModel(final List<Animal> animals) {
-        return animals.stream()
-                .map(this::toModel)
-                .toList();
     }
 
 }
