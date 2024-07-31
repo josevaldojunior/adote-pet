@@ -46,6 +46,7 @@ Este é um sistema de adoção de animais desenvolvido com Spring Boot no back-e
 
 ## Acessando o Sistema
   - Back-end: O servidor Spring Boot estará rodando em http://localhost:8080
+  - Documentação Swagger: A documentação está rodanndo em http://localhost:8080/swagger-ui/index.html
   - Front-end: A aplicação React estará rodando em http://localhost:3000
 
 Notas Adicionais
