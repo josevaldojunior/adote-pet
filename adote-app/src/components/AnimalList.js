@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Modal, Button } from 'react-bootstrap';
 
-function AnimalList({ animals, onUpdateStatus }) {
+function AnimalList({ animals, onUpdateStatus, onViewDetails, onSort }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedAnimal, setSelectedAnimal] = useState(null);
 
@@ -34,15 +34,16 @@ function AnimalList({ animals, onUpdateStatus }) {
       <table className="animal-table table table-striped table-bordered">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Descrição</th>
+            <th onClick={() => onSort('id')}>ID</th>
+            <th onClick={() => onSort('nome')}>Nome</th>
+            <th onClick={() => onSort('descricao')}>Descrição</th>
             <th>URL da Imagem</th>
-            <th>Categoria</th>
-            <th>Data de Nascimento</th>
-            <th>Idade</th>
-            <th>Status</th>
+            <th onClick={() => onSort('categoria')}>Categoria</th>
+            <th onClick={() => onSort('dataNascimento')}>Data de Nascimento</th>
+            <th onClick={() => onSort('idade')}>Idade</th>
+            <th onClick={() => onSort('status')}>Status</th>
             <th>Alterar</th>
+            <th>Detalhes</th>
           </tr>
         </thead>
         <tbody>
@@ -61,8 +62,13 @@ function AnimalList({ animals, onUpdateStatus }) {
               <td>{animal.idade}</td>
               <td>{animal.status}</td>
               <td className="text-center">
-                <button className="btn btn-secondary" onClick={() => handleStatusChange(animal)}>
-                  Status
+                <button className="btn btn-secondary btn-size" onClick={() => handleStatusChange(animal)}>
+                  Alterar Status
+                </button>
+              </td>
+              <td className="text-center">
+                <button className="btn btn-info" onClick={() => onViewDetails(animal)}>
+                  Ver
                 </button>
               </td>
             </tr>

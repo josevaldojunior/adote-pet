@@ -22,7 +22,11 @@ public class Animal {
     private String nome;
     private String descricao;
     private String urlImagem;
-    private String categoria;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
+
     private LocalDate dataNascimento;
 
     @Enumerated(EnumType.STRING)

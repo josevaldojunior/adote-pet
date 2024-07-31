@@ -1,4 +1,4 @@
-package br.com.tech.adote.api.model;
+package br.com.tech.adote.api.model.input;
 
 import br.com.tech.adote.domain.enums.Status;
 import jakarta.validation.constraints.NotBlank;
@@ -26,8 +26,8 @@ public class AnimalInput {
     @URL(message = "A URL da imagem deve ser válida")
     private String urlImagem;
 
-    @NotBlank(message = "A categoria é obrigatória")
-    private String categoria;
+    @NotNull(message = "A categoria é obrigatória")
+    private CategoriaIdInput categoria;
 
     @NotNull(message = "A data de nascimento é obrigatória")
     @PastOrPresent(message = "A data de nascimento não pode ser no futuro")

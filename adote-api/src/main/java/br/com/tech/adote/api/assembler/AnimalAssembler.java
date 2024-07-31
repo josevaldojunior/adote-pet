@@ -1,6 +1,6 @@
 package br.com.tech.adote.api.assembler;
 
-import br.com.tech.adote.api.model.AnimalInput;
+import br.com.tech.adote.api.model.input.AnimalInput;
 import br.com.tech.adote.api.model.AnimalModel;
 import br.com.tech.adote.domain.model.Animal;
 import lombok.AllArgsConstructor;

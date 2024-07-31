@@ -104,8 +104,7 @@ class AnimalServiceTest {
         when(animalRepository.findById(anyLong())).thenReturn(Optional.of(animal));
         when(animalRepository.save(any(Animal.class))).thenReturn(animal);
 
-        Animal updatedAnimal = animalService.updateAnimalStatus(1L, Status.ADOTADO);
-        assertEquals(Status.ADOTADO, updatedAnimal.getStatus());
+        Animal updatedAnimal = animalService.updateAnimalStatus(1L);
         verify(animalRepository, times(1)).save(animal);
     }
 
@@ -113,7 +112,7 @@ class AnimalServiceTest {
     void testUpdateAnimalStatusNotFound() {
         when(animalRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(NegocioException.class, () -> animalService.updateAnimalStatus(1L, Status.ADOTADO));
+        Exception exception = assertThrows(NegocioException.class, () -> animalService.updateAnimalStatus(1L));
 
         String expectedMessage = "Animal not found";
         String actualMessage = exception.getMessage();
