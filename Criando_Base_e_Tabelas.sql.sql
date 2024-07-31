@@ -1,3 +1,7 @@
+CREATE DATABASE IF NOT EXISTS adote;
+
+USE adote;
+
 -- Criar a tabela categoria
 CREATE TABLE adote.categoria (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
