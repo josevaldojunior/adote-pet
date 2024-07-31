@@ -46,25 +46,34 @@ function ConsultaPage() {
     try {
       let response;
       if (searchType === "id" && searchId) {
-        response = await axios.get(
-          `http://localhost:8080/api/animals/${searchId}`
-        );
-        setAnimals([response.data]);
-        setLastSearch({ type: "id", value: searchId });
+        response = await axios.get(`http://localhost:8080/api/animals/${searchId}`);
+        if (response.data) {
+          setAnimals([response.data]);
+          setLastSearch({ type: "id", value: searchId });
+        }
       } else if (searchType === "name" && searchName) {
         response = await axios.get(
           `http://localhost:8080/api/animals/name?name=${searchName}`
         );
-        setAnimals(response.data);
-        setLastSearch({ type: "name", value: searchName });
+        if (response.data && response.data.length > 0) {
+          setAnimals(response.data);
+          setLastSearch({ type: "name", value: searchName });
+        } else {
+          toast.info("Nenhum animal encontrado para o nome fornecido.");
+          fetchAllAnimals();
+        }
       } else {
         toast.error("Por favor, insira um ID ou Nome para pesquisar.");
-        setAnimals([]);
       }
       setSearchType("");
     } catch (error) {
-      toast.error("Erro ao buscar animais. Tente novamente.");
-      console.error("Erro ao buscar animais", error);
+      if (error.response && error.response.status === 404) {
+        toast.info("Nenhum animal encontrado para o ID fornecido.");
+      } else {
+        toast.error("Erro ao buscar animais. Tente novamente.");
+        console.error("Erro ao buscar animais", error);
+      }
+      fetchAllAnimals();
     }
   };
 
@@ -221,7 +230,7 @@ function ConsultaPage() {
           <span>itens por página</span>
         </Col>
       </Row>
-      {currentAnimals.length > 0 && (
+      {animals.length > 0 ? (
         <>
           <AnimalList
             animals={currentAnimals}
@@ -287,6 +296,10 @@ function ConsultaPage() {
             </Button>
           </div>
         </>
+      ) : (
+        <div className="text-center mt-4">
+          <p>Nenhum animal encontrado para os filtros selecionados.</p>
+        </div>
       )}
       {selectedAnimal && (
         <Modal show={true} onHide={handleCloseDetails} centered>
