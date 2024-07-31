@@ -25,7 +25,7 @@ Este é um sistema de adoção de animais desenvolvido com Spring Boot no back-e
 
 ## Passos para Configuração do Banco de Dados
 1. Configurar a API
-   - Altere o arquivo application.properties da API para configurar seu usuário e senha do MySQL
+  - Altere o arquivo application.properties da API para configurar seu usuário e senha do MySQL
 2. Executar Scripts SQL
   - Execute o script Criando_Base_e_Tabelas.sql para criar o banco de dados, tabelas e popular as tabelas
 
