@@ -22,6 +22,7 @@ function ConsultaPage() {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState('asc');
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     fetchAllAnimals();
@@ -39,6 +40,8 @@ function ConsultaPage() {
     } catch (error) {
       toast.error("Erro ao listar todos os animais. Tente novamente.");
       console.error("Erro ao listar todos os animais", error);
+    } finally {
+      setInitialLoad(false);
     }
   };
 
@@ -168,6 +171,35 @@ function ConsultaPage() {
     setSelectedAnimal(null);
   };
 
+  const handleFilterChange = (filterType, value) => {
+    if (filterType === "status") {
+      setFilterStatus(value);
+    } else if (filterType === "category") {
+      setFilterCategory(value);
+    }
+    setCurrentPage(1);
+  };
+
+  const applyFilters = () => {
+    if (!initialLoad) {
+      const results = animals.filter((animal) => {
+        return (filterStatus ? animal.status === filterStatus : true) &&
+               (filterCategory ? animal.categoria === filterCategory : true);
+      });
+
+      if (results.length === 0) {
+        toast.info("Nenhum animal encontrado para os filtros selecionados.");
+        setFilterStatus("");
+        setFilterCategory("");
+        fetchAllAnimals();
+      }
+    }
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [filterStatus, filterCategory]);
+
   return (
     <div className="consulta-container container mt-5">
       <h2 className="page-title text-center">Consulta de Animais</h2>
@@ -201,6 +233,11 @@ function ConsultaPage() {
                     ? setSearchId(e.target.value)
                     : setSearchName(e.target.value)
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
                 className="d-inline-block w-auto mx-1"
               />
               <Button onClick={handleSearch} variant="primary" className="mx-1">
@@ -243,7 +280,7 @@ function ConsultaPage() {
               <Form.Control
                 as="select"
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
                 className="d-inline-block w-auto mx-1"
               >
                 <option value="">Todos os Status</option>
@@ -253,7 +290,7 @@ function ConsultaPage() {
               <Form.Control
                 as="select"
                 value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
+                onChange={(e) => handleFilterChange("category", e.target.value)}
                 className="d-inline-block w-auto mx-1"
               >
                 <option value="">Todas as Categorias</option>

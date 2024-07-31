@@ -27,7 +27,7 @@ function AnimalList({ animals, onUpdateStatus, onViewDetails, onSort }) {
     setShowModal(false);
   };
 
-  if (animals.length === 0) return <p className="text-center">Nenhum animal encontrado para os filtros selecionados.</p>;
+  if (animals.length === 0) return null;
 
   return (
     <>
